@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+# -------------------------------------
+# COMPILE
+# -------------------------------------
+
+# Bash Options
+# =====================================
+# -e, exit on error
+# -u, unset variable is an error
+# -o pipefail, fail pipe chain if error
+set -eu -o pipefail
+
+# Prevent expansion of *.sh when no *.sh files are present
+shopt -s nullglob
+
+# Documentation
+# =====================================
+# Aubrey Taylor - <http://github.com/aubricus/heroku-buildpack-rc>
+#
+# bin/Compile
+# See: https://devcenter.heroku.com/articles/buildpack-api#bin-compile
+#
+# This script performs the buildpack transformation.
+#
+# Usage:
+# bin/compile BUILD_DIR CACHE_DIR ENV_DIR
+#
+# Params:
+# BUILD_DIR  Will be the location of the app.
+#
+# CACHE_DIR  Will be a location the buildpack can use
+#            to cache build artifacts between builds.
+#
+# ENV_DIR    Is a directroy that contains a file for each application's
+#            config vars.
+
+# Params
+# =====================================
+
+BUILD_DIR=$1
+CACHE_DIR=$1
+ENV_DIR=$1
+
+# Consts
+# =====================================
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+PROFILE_PATH=$BUILD_DIR/.profile.d
+HEROKU_RC_PATH=$BUILD_DIR/herokurc
+HEROKU_RC_COMPILE=$HEROKU_RC_PATH/compile
+HEROKU_RC_PROFILE=$HEROKU_RC_PATH/profile.d
+
+# Utils
+# =====================================
+
+source $BIN_DIR/utils
+
+# Script
+# =====================================
+
+# Copy profile.d to $BUILD_DIR/.profile.d
+if [[ -d $HEROKU_RC_PROFILE ]]; then
+    echo "Found herokurc/profile.d dir, copying files to: $(basename $PROFILE_PATH)/." | indent_arrow
+
+    # Create the .profile.d path if it doesn't exist
+    mkdir -p $PROFILE_PATH
+
+    # Copy / Overwrite
+    for file in $HEROKU_RC_PROFILE/*.sh; do
+        echo "Coyping file $(basename $file)" | indent
+        cp $file $PROFILE_PATH
+    done
+fi
+
+# Run compile
+if [[ -f $HEROKU_RC_COMPILE ]]; then
+    echo "Found compile file, sourcing..." | indent_arrow
+    source $HEROKU_RC_COMPILE $BUILD_DIR $CACHE_DIR $ENV_DIR
+else
+    echo "Could not find compile script, nothing was done!" | indent_arrow
+fi

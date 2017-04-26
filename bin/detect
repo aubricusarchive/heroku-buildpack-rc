@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# -------------------------------------
+# DETECT
+# -------------------------------------
+
+# Bash Options
+# =====================================
+# -e, exit on error
+# -u, unset variable is an error
+# -o pipefail, fail pipe chain if error
+set -eu -o pipefail
+
+# Documentation
+# =====================================
+# Aubrey Taylor - <http://github.com/aubricus/heroku-buildpack-rc>
+#
+# bin/detect
+# See: https://devcenter.heroku.com/articles/buildpack-api#bin-detect
+#
+# This must return an exit code of 0 if the app can be
+# serviced by this buildpack.
+#
+# Usage:
+# bin/detect BUILD_DIR
+#
+# Params:
+# BUILD_DIR  Will be the location of the app.
+
+# Params
+# =====================================
+
+BUILD_DIR=$1
+
+# Consts
+# =====================================
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+HEROKU_RC_PATH=$BUILD_DIR/herokurc
+HEROKU_RC_DETECT=$HEROKU_RC_PATH/detect
+
+# Utils
+# =====================================
+
+source $BIN_DIR/utils
+
+# Script
+# =====================================
+
+if [ -f $HEROKU_RC_DETECT ]; then
+    echo "Herokurc!"
+    source $HEROKU_RC_DETECT $BUILD_DIR
+else
+    echo "Could not find detect file "
+    exit 1
+fi

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# -------------------------------------
+# RELEASE
+# -------------------------------------
+
+# Bash Options
+# =====================================
+# -e, exit on error
+# -u, unset variable is an error
+# -o pipefail, fail pipe chain if error
+set -eu -o pipefail
+
+# Documentation
+# =====================================
+# Aubrey Taylor - <http://github.com/aubricus/heroku-buildpack-rc>
+#
+# bin/release
+# https://devcenter.heroku.com/articles/buildpack-api#bin-release-usage
+#
+# Heroku Usage:
+# bin/release BUILD_DIR
+
+# Params
+# =====================================
+
+BUILD_DIR=$1
+
+# Consts
+# =====================================
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+HEROKU_RC_PATH=$BUILD_DIR/herokurc
+HEROKU_RC_RELEASE=$HEROKU_RC_PATH/release
+
+# Utils
+# =====================================
+
+source $BIN_DIR/utils
+
+# Script
+# =====================================
+
+if [ -f $HEROKU_RC_RELEASE ]; then
+    echo "Found detect file, sourcing..." | indent_arrow
+    source $HEROKU_RC_DETECT $BUILD_DIR
+else
+    echo "Could not find release script, skipping." | indent_arrow
+fi

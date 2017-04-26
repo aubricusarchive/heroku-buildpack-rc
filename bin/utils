@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# -------------------------------------
+# UTILS
+# -------------------------------------
+
+# Bash Options
+# =====================================
+# -e, exit on error
+# -u, unset variable is an error
+# -o pipefail, fail pipe chain if error
+set -eu -o pipefail
+
+# Helpers
+# =====================================
+
+indent_arrow() {
+    sed -u 's/^/-----> /'
+}
+
+indent() {
+    sed -u 's/^/       /'
+}
